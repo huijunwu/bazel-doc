@@ -54,10 +54,19 @@ A workspace is a directory on your filesystem that contains the source files for
 这个WORKSPACE文件可以是空的，或者写一些外部依赖在里面。（参考Build Encyclopedia章的Workspace Rules节）
 
 == Packages
+包
 
 The primary unit of code organization in a workspace is the package. A package is collection of related files and a specification of the dependencies among them.
 
+workspace里面代码组织的 基本单元 是 package
+
+一个 package 是一个集合，集合里面是文件和依赖的说明。
+
 A package is defined as a directory containing a file named BUILD, residing beneath the top-level directory in the workspace. A package includes all files in its directory, plus all subdirectories beneath it, except those which themselves contain a BUILD file.
+
+一个package就是一个目录，只是这个目录里有个BUILD文件，这个目录是workspace目录的子目录
+
+一个package包含所有目录里面的文件和递归子目录，除了那些自己是package的子目录以外。（意思就是package里面还有package，上层package包含除了下层package以外的所有其他内容）
 
 For example, in the following directory tree there are two packages, my/app, and the subpackage my/app/tests. Note that my/app/data is not a package, but a directory belonging to package my/app.
 
