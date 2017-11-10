@@ -40,10 +40,18 @@ workspace里面是按照嵌套的package组织的，每个package其实也是一
 这个BUILD文件说明源代码的编译结果是啥。
 
 = Workspace, Packages and Targets
+工作区，包，目标
 
 == Workspace
+工作区
 
 A workspace is a directory on your filesystem that contains the source files for the software you want to build, as well as symbolic links to directories that contain the build outputs. Each workspace directory has a text file named WORKSPACE which may be empty, or may contain references to external dependencies required to build the outputs. See also the Workspace Rules section in the Build Encyclopedia.
+
+一个工作区就是一个目录，这个目录包括源文件 和 指向编译结果的链接
+
+工作区目录是一个叫WORKSPACE的文件标识的。
+
+这个WORKSPACE文件可以是空的，或者写一些外部依赖在里面。（参考Build Encyclopedia章的Workspace Rules节）
 
 == Packages
 
