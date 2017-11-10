@@ -9,29 +9,32 @@ This document provides an overview of the source tree layout and the terminology
 
 = Table of Contents
 目录
-Introduction
-Workspace, Packages and Targets
-  Workspace
-  Packages
-  Targets
-  Labels
-  Lexical Specifications of a Label
-  Rules
-BUILD Files
-  The Core Build Language
-  Declaring Build Rules
-Types of Build Rules
-Dependencies
-  Actual and Declared Dependencies
-  Types of Dependencies
-  Using Labels to Reference Directories
+
+* Introduction
+* Workspace, Packages and Targets
+** Workspace
+** Packages
+** Targets
+** Labels
+** Lexical Specifications of a Label
+** Rules
+* BUILD Files
+** The Core Build Language
+** Declaring Build Rules
+* Types of Build Rules
+* Dependencies
+** Actual and Declared Dependencies
+** Types of Dependencies
+** Using Labels to Reference Directories
 
 
 = Introduction
 介绍
+
 Bazel builds software from source code organized in a directory called a workspace. Source files in the workspace are organized in a nested hierarchy of packages, where each package is a directory that contains a set of related source files and one BUILD file. The BUILD file specifies what software outputs can be built from the source.
-1.bazel编译软件从源代码，这个源代码是在一个目录里面，这个目录叫做workspace。
-1.workspace里面是按照嵌套的package组织的，每个package其实也是一个目录，特别的是这个目录被一个BUILD文件标识。（我理解的，每个BUILD就代表了这个package，没有BUILD文件的目录不是package？）
+
+1.bazel编译软件从源代码，这个源代码是在一个目录里面，这个目录叫做workspace。+
+2.workspace里面是按照嵌套的package组织的，每个package其实也是一个目录，特别的是这个目录被一个BUILD文件标识。（我理解的，每个BUILD就代表了这个package，没有BUILD文件的目录不是package？）+
 3.这个BUILD文件说明源代码的编译结果是啥。
 
 = Workspace, Packages and Targets
