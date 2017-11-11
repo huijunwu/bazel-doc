@@ -285,63 +285,83 @@ BUILD文件
 
 The previous section described packages, targets and labels, and the build dependency graph abstractly. In this section, we'll look at the concrete syntax used to define a package.
 
+这一节我们学习语法来定义package
+
 By definition, every package contains a BUILD file, which is a short program written in the Build Language. Most BUILD files appear to be little more than a series of declarations of build rules; indeed, the declarative style is strongly encouraged when writing BUILD files.
+
+pacakge对应一个BUILD用Build语言写的。大多数BUILD文件就是包含一列表rule，确实，这种声明式的样子是推荐的BUILD样子。
 
 However, the build language is in fact an imperative language, and BUILD files are interpreted as a sequential list of statements. Build rule functions, such as cc_library, are procedures whose side-effect is to create an abstract build rule inside the build tool.
 
+但是build语言是一种语言，BUILD文件被解析成一序列的语句。rule函数创建了一个抽象的 bla（这个句子shi一样）
+
 The concrete syntax of BUILD files is a subset of Python. Originally, the syntax was that of Python, but experience showed that users rarely used more than a tiny subset of Python's features, and when they did, it often resulted in complex and fragile BUILD files. In many cases, the use of such features was unnecessary, and the same result could be achieved by using an external program, e.g. via a genrule build rule.
+
+BUILD的语法是python的子集。最开始就是python，但是后来发现大家只用python的一部分，如果用全python就会复杂和乱的。所以就是python的子集。如果要用更多python的部分可以用外挂的方式，比如genrule
 
 Crucially, programs in the build language are unable to perform arbitrary I/O (though many users try!). This invariant makes the interpretation of BUILD files hermetic, i.e. dependent only on a known set of inputs, which is essential for ensuring that builds are reproducible.
 
+BUILD语言不能做io，尽管有些用户想。这个不变式使得build变成密闭的系统，保证编译能重现
+
 == The Core Build Language
+核心build语言
 
 Lexemes: the lexical syntax of the core language is a strict subset of Python 2.6, and we refer the reader to the Python specification for details. Lexical features of Python that are not supported include: floating-point literals, hexadecimal and Unicode escapes within string literals.
 
+词法是python 2.6 严格子集。不支持的：浮点，十六进制，unicode
+
 BUILD files should be written using only ASCII characters, although technically they are interpreted using the Latin-1 character set. The use of coding: declarations is forbidden.
+
+BUILD应该只用ASCII，尽管可以latin-1。不能声明encoding？
 
 Grammar: the grammar of the core language is shown below, using EBNF notation. Ambiguity is resolved using precedence, which is defined as for Python.
 
-file_input ::= (simple_stmt? '\n')*
+语法如下，EBNF标识。用优先级祛除歧义
+[source,txt]
+-------------
+file_input ::= (simple_stmt? '\n')*  全文分行
 
-simple_stmt ::= small_stmt (';' small_stmt)* ';'?
+simple_stmt ::= small_stmt (';' small_stmt)* ';'?   一行用分号分割
 
-small_stmt ::= expr
-             | assign_stmt
+small_stmt ::= expr                       表达式
+             | assign_stmt              或者 赋值
 
-assign_stmt ::= IDENTIFIER assign_op expr
+assign_stmt ::= IDENTIFIER assign_op expr     变量 = 表达式
 
-assign_op ::= '=' | '+=' | '-=' | '*=' | '/=' | '%='
+assign_op ::= '=' | '+=' | '-=' | '*=' | '/=' | '%='    赋值 符号
 
-expr ::= INTEGER
-       | STRING+
-       | IDENTIFIER
-       | expr '(' arg_list? ')'
-       | expr '.' IDENTIFIER
-       | '[' expr_list? ']'
-       | '[' expr ('for' IDENTIFIER 'in' expr | 'if' expr)+ ']'
-       | '(' expr_list? ')'
-       | '{' dict_entry_list? '}'
-       | '{' dict_entry ('for' IDENTIFIER 'in' expr | 'if' expr)+ '}'
-       | expr bin_op expr
-       | '-' expr
-       | 'not' expr
-       | expr '[' expr? ':' expr? ':' expr? ']'
-       | expr '[' expr? ':' expr? ']'
-       | expr '[' expr ']'
+expr ::= INTEGER                    整数
+       | STRING+                    字符串
+       | IDENTIFIER                 变量
+       | expr '(' arg_list? ')'     表达式/函数（参数 列表）
+       | expr '.' IDENTIFIER        表达式/对象 变量
+       | '[' expr_list? ']'         [表达式 列表]
+       | '[' expr ('for' IDENTIFIER 'in' expr | 'if' expr)+ ']'     [表达式 列表 带for或者if]
+       | '(' expr_list? ')'         (表达式 列表)
+       | '{' dict_entry_list? '}'   {字典 列表}
+       | '{' dict_entry ('for' IDENTIFIER 'in' expr | 'if' expr)+ '}'    {字典 列表 带for或者if}
+       | expr bin_op expr           表达式 二元算符 表达式
+       | '-' expr                   表达式 求反
+       | 'not' expr                 表达式 求非
+       | expr '[' expr? ':' expr? ':' expr? ']'         表达式 [3阶]
+       | expr '[' expr? ':' expr? ']'                   表达式 [2阶]
+       | expr '[' expr ']'                              表达式 [1阶]
 
 bin_op ::= '+' | '-' | '*' | '/' | '//' | '%' | '|'
-         | 'and' | 'or' | '==' | '!=' | '<' | '<=' | '>' | '>=' | 'in' | 'not' 'in'
+         | 'and' | 'or' | '==' | '!=' | '<' | '<=' | '>' | '>=' | 'in' | 'not' 'in'  二元算符
 
-expr_list ::= (expr ',')* expr ','?
+expr_list ::= (expr ',')* expr ','?     表达式 列表
 
-dict_entry_list ::= (dict_entry ',')* dict_entry ','?
+dict_entry_list ::= (dict_entry ',')* dict_entry ','?      字典 列表
 
-dict_entry ::= expr ':' expr
+dict_entry ::= expr ':' expr     键值对
 
-arg_list ::= (arg ',')* arg ','?
+arg_list ::= (arg ',')* arg ','?   函数 参数 列表
 
-arg ::= IDENTIFIER '=' expr
-      | expr
+arg ::= IDENTIFIER '=' expr  赋值
+      | expr                 表达式
+-------------
+
 For each expression of the core language, the semantics are identical to the corresponding Python semantics, except in the following cases:
 
 certain overloads of the binary % operator are not supported. Only the int % int and str % tuple forms are supported. Only the %s and %d format specifiers may be used; %(var)s is illegal.
