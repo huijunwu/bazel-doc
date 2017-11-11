@@ -174,17 +174,30 @@ Within a BUILD file, the package-name part of label may be omitted, and optional
 
 Similarly, within a BUILD file, files belonging to the package may be referenced by their unadorned name relative to the package directory:
 
-generate.cc
-testdata/input.txt
+在一个BUILD内，file用裸名字，相对自己package路径指代：
+
+  generate.cc
+  testdata/input.txt
+
 But from other packages, or from the command-line, these file targets must always be referred to by their complete label, e.g. //my/app:generate.cc.
+
+但是在其他pcakge目录，或者命令行，file要用完整绝对路径
 
 Relative labels cannot be used to refer to targets in other packages; the complete package name must always be specified in this case. For example, if the source tree contains both the package my/app and the package my/app/testdata (i.e., each of these two packages has its own BUILD file). The latter package contains a file named testdepot.zip. Here are two ways (one wrong, one correct) to refer to this file within //my/app:BUILD:
 
-testdata/testdepot.zip  # Wrong: testdata is a different package.
-//my/app/testdata:testdepot.zip   # Right.
+相对路径不能指代别人pacakge目录里面的target，这种情况下要用绝对路径。举个例子。。。
+
+  testdata/testdepot.zip  # Wrong: testdata is a different package. 别人package不能用相对路径
+  //my/app/testdata:testdepot.zip  # Right. 别人pacakge要用绝对路径
+
 If, by mistake, you refer to testdepot.zip by the wrong label, such as //my/app:testdata/testdepot.zip or //my:app/testdata/testdepot.zip, you will get an error from the build tool saying that the label "crosses a package boundary". You should correct the label by putting the colon after the directory containing the innermost enclosing BUILD file, i.e., //my/app/testdata:testdepot.zip.
 
+如果你犯错，会得到一个报错。
+
+冒号总是最后一个分隔符，不可能插在//之间。
+
 == Lexical specification of a label
+路径的语法
 
 The syntax of labels is intentionally strict, so as to forbid metacharacters that have special meaning to the shell. This helps to avoid inadvertent quoting problems, and makes it easier to construct tools and scripts that manipulate labels, such as the Bazel Query Language. All of the following are forbidden in labels: any sort of white space, braces, brackets, or parentheses; wildcards such as *; shell metacharacters such as >, & and |; etc. This list is not comprehensive; the precise details are below.
 
