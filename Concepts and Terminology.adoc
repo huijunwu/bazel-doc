@@ -293,7 +293,7 @@ pacakge对应一个BUILD用Build语言写的。大多数BUILD文件就是包含�
 
 However, the build language is in fact an imperative language, and BUILD files are interpreted as a sequential list of statements. Build rule functions, such as cc_library, are procedures whose side-effect is to create an abstract build rule inside the build tool.
 
-但是build语言是一种语言，BUILD文件被解析成一序列的语句。rule函数创建了一个抽象的 bla（这个句子shi一样）
+但是build语言是一种命令式语言，BUILD文件被解析成一序列的语句。rule函数创建了一个抽象的 bla（这个句子shi一样）
 
 The concrete syntax of BUILD files is a subset of Python. Originally, the syntax was that of Python, but experience showed that users rarely used more than a tiny subset of Python's features, and when they did, it often resulted in complex and fragile BUILD files. In many cases, the use of such features was unnecessary, and the same result could be achieved by using an external program, e.g. via a genrule build rule.
 
@@ -364,70 +364,125 @@ arg ::= IDENTIFIER '=' expr  赋值
 
 For each expression of the core language, the semantics are identical to the corresponding Python semantics, except in the following cases:
 
+表达式与python语义一致，除了一下：
+
 certain overloads of the binary % operator are not supported. Only the int % int and str % tuple forms are supported. Only the %s and %d format specifiers may be used; %(var)s is illegal.
+
+%用法
+
 Many Python features are missing: control-flow constructs (loops, conditionals, exceptions), basic datatypes (floating-point numbers, big integers), import and the module system, support for definition of classes, some Python's built-in functions. Function definitions and for statements are allowed only in extension files (.bzl). Available functions are documented in the library section.
 
+缺失：流程控制，基本数据类型，模块系统，class，语言内建函数。函数定义和for语句只在.bzl文件允许。可用的函数参见 bla
+
 == Declaring build rules
+声明rule
 
 The build language is an imperative language, so in general, order does matter: variables must be defined before they are used, for example. However, most BUILD files consist only of declarations of build rules, and the relative order of these statements is immaterial; all that matters is which rules were declared, and with what values, by the time package evaluation completes. So, in simple BUILD files, rule declarations can be re-ordered freely without changing the behavior.
 
+build语言是命令式语言，所以要注意顺序
+
+但是大部分BUILD只包含一些rule，所以顺序就不重要了？
+
 BUILD file authors are encouraged to use comments liberally to document the role of each build target, whether it is intended for public use, and anything else that would help users and future maintainers, including a # Description: comment at the top, explaining the role of the package.
+
+使用注释
 
 The Python comment syntax of #... is supported. Triple-quoted string literals may span multiple lines, and can be used for multi-line comments.
 
+用#和'''
+
 = Types of build rule
+rule类型
 
 The majority of build rules come in families, grouped together by language. For example, cc_binary, cc_library and cc_test are the build rules for C++ binaries, libraries, and tests, respectively. Other languages use the same naming scheme, with a different prefix, e.g. java_* for Java. These functions are all documented in the Build Encyclopedia.
 
+主要的rule按照编程语言分类。（java c++ python binary test library）
+
 *_binary rules build executable programs in a given language. After a build, the executable will reside in the build tool's binary output tree at the corresponding name for the rule's label, so //my:program would appear at (e.g.) $(BINDIR)/my/program.
+
+生成的在binary里面，比如 bla
 
 Such rules also create a runfiles directory containing all the files mentioned in a data attribute belonging to the rule, or any rule in its transitive closure of dependencies; this set of files is gathered together in one place for ease of deployment to production.
 
+这些binary会收集在一起，方便部署。用data属性标识路径
+
 *_test rules are a specialization of a *_binary rule, used for automated testing. Tests are simply programs that return zero on success.
+
+test是一种特殊的binary。test给出0当成功的时候
 
 Like binaries, tests also have runfiles trees, and the files beneath it are the only files that a test may legitimately open at runtime. For example, a program cc_test(name='x', data=['//foo:bar']) may open and read $TEST_SRCDIR/workspace/foo/bar during execution. (Each programming language has its own utility function for accessing the value of $TEST_SRCDIR, but they are all equivalent to using the environment variable directly.) Failure to observe the rule will cause the test to fail when it is executed on a remote testing host.
 
+跟随bin。收集的test才能被测试的时候访问
+
 *_library rules specify separately-compiled modules in the given programming language. Libraries can depend on other libraries, and binaries and tests can depend on libraries, with the expected separate-compilation behavior.
 
+库。bin和test可以依赖lib
+
 = Dependencies
+依赖
 
 A target A depends upon a target B if B is needed by A at build or execution time. The depends upon relation induces a directed acyclic graph (DAG) over targets, and we call this a dependency graph. A target's direct dependencies are those other targets reachable by a path of length 1 in the dependency graph. A target's transitive dependencies are those targets upon which it depends via a path of any length through the graph.
 
+编译的时候和运行的时候的依赖都叫依赖。依赖是target/文件的DAG。直接依赖，间接依赖
+
 In fact, in the context of builds, there are two dependency graphs, the graph of actual dependencies and the graph of declared dependencies. Most of the time, the two graphs are so similar that this distinction need not be made, but it is useful for the discussion below.
 
+有两种依赖DAG：actual和declared。尽管它们很相近。
+
 == Actual and declared dependencies
+acutal和declared依赖
 
 A target X is actually dependent on target Y iff Y must be present, built and up-to-date in order for X to be built correctly. "Built" could mean generated, processed, compiled, linked, archived, compressed, executed, or any of the other kinds of tasks that routinely occur during a build.
 
+actual：对象file必须在ready to build/run。（源代码里面的依赖）
+
 A target X has a declared dependency on target Y iff there is a dependency edge from X to Y in the package of X.
+
+declared：只是BUILD字面上的，不一定ready to build
 
 For correct builds, the graph of actual dependencies A must be a subgraph of the graph of declared dependencies D. That is, every pair of directly-connected nodes x --> y in A must also be directly connected in D. We say D is an overapproximation of A.
 
+为了正确编译，actual要是declared的子图。（也就是说BUILD必须完全，不能有超出预想的情况发生）
+
 It is important that it not be too much of an overapproximation, though, since redundant declared dependencies can make builds slower and binaries larger.
+
+但是BUILD完全也不是说要加很多不必要的在BUILD里面。
 
 What this means for BUILD file writers is that every rule must explicitly declare all of its actual direct dependencies to the build system, and no more. Failure to observe this principle causes undefined behavior: the build may fail, but worse, the build may depend on some prior operations, or upon which transitive declared dependencies the target happens to have. The build tool attempts aggressively to check for missing dependencies and report errors, but it is not possible for this checking to be complete in all cases.
 
+BUILD的rule要显式写明所有actual直接依赖。
+
 You need not (and should not) attempt to list everything indirectly imported, even if it is "needed" by A at execution time.
+
+不要写出所有的间接的 bla
 
 During a build of target X, the build tool inspects the entire transitive closure of dependencies of X to ensure that any changes in those targets are reflected in the final result, rebuilding intermediates as needed.
 
+编译过程中，bazel会检查间接依赖
+
 The transitive nature of dependencies leads to a common mistake. Through careless programming, code in one file may use code provided by an indirect dependency, i.e. a transitive but not direct edge in the declared dependency graph. Indirect dependencies do not appear in the BUILD file. Since the rule doesn't directly depend on the provider, there is no way to track changes, as shown in the following example timeline:
+
+源代码中可能有间接依赖，但是源代码间的这种关系并没有反应在BUILD中，因为BUILD只有直接依赖
 
 1. At first, everything works
 
 The code in package a uses code in package b. The code in package b uses code in package c, and thus a transitively depends on c.
 
+[source,txt]
+----
 a/BUILD
 
 rule(
-    name = "a",
-    srcs = "a.in",
-    deps = "//b:b",
+    name = "a",  名字
+    srcs = "a.in",  输入
+    deps = "//b:b",  依赖
 )
+
 a/a.in
 
-import b;
+import b;  a依赖b
 b.foo();
+
 b/BUILD
 
 rule(
@@ -435,74 +490,103 @@ rule(
     srcs = "b.in",
     deps = "//c:c",
 )
+
 b/b.in
 
 import c;
 function foo() {
   c.bar();
 }
+----
 Declared dependency graph:  a --> b --> c
 
 Actual dependency graph:    a --> b --> c
+
 The declared dependencies overapproximate the actual dependencies. All is well.
+
+
 2. A latent hazard is introduced.
 
 Someone carelessly adds code to a that creates a direct actual dependency on c, but forgets to declare it.
 
+[source,txt]
+----
 a/a.in
 
 import b;
-import c;
+import c;  a依赖c，但是a的BUILD不知道
 b.foo();
 c.garply();
-Declared dependency graph:  a --> b --> c
+----
+Declared dependency graph:  a --> b --> c  BUILD里面的依赖
 
-Actual dependency graph:    a --> b -->_c
-                             \_________/|
+Actual dependency graph:    a --> b -->_c    源代码里面的依赖
+                             \_________/|
+                             
 The declared dependencies no longer overapproximate the actual dependencies. This may build ok, because the transitive closures of the two graphs are equal, but masks a problem: a has an actual but undeclared dependency on c.
+
+这种情况下可以build成功，因为间接依赖有。
+
 3. The hazard is revealed
 
 Someone refactors b so that it no longer depends on c, inadvertently breaking a through no fault of their own.
 
+[source,txt]
+----
 b/BUILD
 
 rule(
     name = "b",
     srcs = "b.in",
-    deps = "//d:d",
+    deps = "//d:d",     a的BUILD里面没有写c，b的BUILD里面也没有c，这会让a的build失败找不到c
 )
+
 b/b.in
 
 import d;
 function foo() {
   d.baz();
 }
-Declared dependency graph:  a --> b     c
 
-Actual dependency graph:    a --> b    _c
-                             \_________/|
+----
+Declared dependency graph:  a --> b     c       BUILD的
+
+Actual dependency graph:    a --> b    _c       源代码的
+                             \_________/|
+                             
 The declared dependency graph is now an underapproximation of the actual dependencies, even when transitively closed; the build is likely to fail. The problem could have been averted by ensuring that the actual dependency from a to c introduced in Step 2 was properly declared in the BUILD file.
 
+BUILD要跟随 源代码，源代码是怎么依赖的，BUILD就要照着写是什么依赖
+
 == Types of dependencies
+依赖的类型
 
 Most build rules have three attributes for specifying different kinds of generic dependencies: srcs, deps and data. These are explained below. See also Attributes common to all rules in the Build Encyclopedia.
+
+大部分rule有3个属性：srcs，deps，data
 
 Many rules also have additional attributes for rule-specific kinds of dependency, e.g. compiler, resources, etc. These are detailed in the Build Encyclopedia.
 
 srcs dependencies
 
-Files consumed directly by the rule or rules that output source files.
+Files consumed directly by the rule or rules that output source files. 输入
 
 deps dependencies
 
-Rule pointing to separately-compiled modules providing header files, symbols, libraries, data, etc.
+Rule pointing to separately-compiled modules providing header files, symbols, libraries, data, etc.  依赖
 
 data dependencies
 
 A build target might need some data files to run correctly. These data files aren't source code: they don't affect how the target is built. For example, a unit test might compare a function's output to the contents of a file. When we build the unit test, we don't need the file; but we do need it when we run the test. The same applies to tools that are launched during execution.
 
+运行时要的数据，编译时不用
+
 The build system runs tests in an isolated directory where only files listed as "data" are available. Thus, if a binary/library/test needs some files to run, specify them (or a build rule containing them) in data. For example:
 
+test的时候只有data属性里面的文件才能被访问，test在一个隔离的目录里面。
+
+[source,txt]
+----
 # I need a config file from a directory named env:
 java_binary(
     name = "setenv",
@@ -520,26 +604,43 @@ sh_test(
         ...
     ],
 )
+----
+
 These files are available using the relative path path/to/data/file. In tests, it is also possible to refer to them by joining the paths of the test's source directory and the workspace-relative path, e.g. ${TEST_SRCDIR}/workspace/path/to/data/file.
 
+这些文件用相对路径
+
 == Using Labels to Reference Directories
+用label指向目录 （目录也是个文件）
 
 As you look over our BUILD files, you might notice that some data labels refer to directories. These labels end with /. or / like so:
 
-data = ["//data/regression:unittest/."]  # don't use this
+  data = ["//data/regression:unittest/."]  # don't use this
+
 or like so:
 
-data = ["testdata/."]  # don't use this
+  data = ["testdata/."]  # don't use this
+
 or like so:
 
-data = ["testdata/"]  # don't use this
+  data = ["testdata/"]  # don't use this
+
 This seems convenient, particularly for tests (since it allows a test to use all the data files in the directory).
 
 But try not to do this. In order to ensure correct incremental rebuilds (and re-execution of tests) after a change, the build system must be aware of the complete set of files that are inputs to the build (or test). When you specify a directory, the build system will perform a rebuild only when the directory itself changes (due to addition or deletion of files), but won't be able to detect edits to individual files as those changes do not affect the enclosing directory. Rather than specifying directories as inputs to the build system, you should enumerate the set of files contained within them, either explicitly or using the glob() function. (Use ** to force the glob() to be recursive.)
 
-data = glob(["testdata/**"])  # use this instead
+不要指向目录，因为这会让bazel难以检测是不是有代码变动。要显示列出要bazel检测的文件。用glob和**
+
+  data = glob(["testdata/**"])  # use this instead
+
 Unfortunately, there are some scenarios where directory labels must be used. For example, if the testdata directory contains files whose names do not conform to the strict label syntax (e.g. they contain certain punctuation symbols), then explicit enumeration of files, or use of the glob() function will produce an invalid labels error. You must use directory labels in this case, but beware of the concomitant risk of incorrect rebuilds described above.
+
+但是有些时候只能指向目录，但是要知道坏处
 
 If you must use directory labels, keep in mind that you can't refer to the parent package with a relative "../" path; instead, use an absolute path like "//data/regression:unittest/.".
 
+不得不用目录的时候，不要用..
+
 Note that directory labels are only valid for data dependencies. If you try to use a directory as a label in an argument other than data, it will fail and you will get a (probably cryptic) error message.
+
+注意，目录只能用在data
