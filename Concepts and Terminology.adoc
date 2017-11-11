@@ -15,7 +15,7 @@ This document provides an overview of the source tree layout and the terminology
 ** Workspace （带WORKSPACE的目录）
 ** Packages （带BUILD的目录）
 ** Targets （文件，不论直接指代，还是函数指代）
-** Labels
+** Labels （文件 路径）
 ** Lexical Specifications of a Label
 ** Rules
 * BUILD Files
@@ -132,23 +132,45 @@ Package groups are sets of packages whose purpose is to limit accessibility of c
 package group就是package的集合，目的是为了限制某些rule的访问。
 
 == Labels
+标签
 
 All targets belong to exactly one package. The name of a target is called its label, and a typical label in canonical form looks like this:
 
+target属于一个package。target的名字就是它的label，一个典型的label用canonical的格式就像这样：
+
 //my/app/main:app_binary
+
 Each label has two parts, a package name (my/app/main) and a target name (app_binary). Every label uniquely identifies a target. Labels sometimes appear in other forms; when the colon is omitted, the target name is assumed to be the same as the last component of the package name, so these two labels are equivalent:
 
-//my/app
-//my/app:app
+每个label有2个部分，package名字和target名字。（注意这里的package名字没有最开头的//）
+
+每个label唯一定位一个target。
+
+label还有其他格式，当冒号后面省略的时候，意思就是说target名字就是package名字最后一节一样。像下面这两个等价：
+
+* //my/app
+* //my/app:app
+
 Short-form labels such as //my/app are not to be confused with package names. Labels start with //, but package names never do, thus my/app is the package containing //my/app. (A common misconception is that //my/app refers to a package, or to all the targets in a package; neither is true.)
+
+这种短格式的label不会跟package名字混淆。因为label用//开头，但是package名字没有//开头。所以my/app是一个package目录，它含有//my/app这个target文件。
+
+常见错误：//my/app是一个package（其实它是一个target，应为有//开头，省略冒号）
+
+常见错误：//my/app指代所有target（其实它只指代一个target，就是省略冒号的那个同名target）
 
 Within a BUILD file, the package-name part of label may be omitted, and optionally the colon too. So within the BUILD file for package my/app (i.e. //my/app:BUILD), the following "relative" labels are all equivalent:
 
-//my/app:app
-//my/app
-:app
-app
+在一个BUILD文件内，可以省略package名字，冒号也可以省略。（因为都是同package的target的时候。）下面这些等价：
+
+* //my/app:app  完整路径 = //+<package>+:+<target>
+* //my/app  完整路径，这是同名省略冒号
+* :app  相对路径，这是rule输出file
+* app  相对路径，这是直接file
+
 (It is a matter of convention that the colon is omitted for files, but retained for rules, but it is not otherwise significant.)
+
+大家一般约定俗成：file省略冒号，rule保留冒号。但这不是语法。
 
 Similarly, within a BUILD file, files belonging to the package may be referenced by their unadorned name relative to the package directory:
 
