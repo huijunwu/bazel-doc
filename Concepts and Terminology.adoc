@@ -14,7 +14,7 @@ This document provides an overview of the source tree layout and the terminology
 * Workspace, Packages and Targets
 ** Workspace （带WORKSPACE的目录）
 ** Packages （带BUILD的目录）
-** Targets
+** Targets （文件，不论直接指代，还是函数指代）
 ** Labels
 ** Lexical Specifications of a Label
 ** Rules
