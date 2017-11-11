@@ -70,10 +70,18 @@ A package is defined as a directory containing a file named BUILD, residing bene
 
 For example, in the following directory tree there are two packages, my/app, and the subpackage my/app/tests. Note that my/app/data is not a package, but a directory belonging to package my/app.
 
+看个例子，有2个package（因为有2个BUILD），my app 和 my app tests
+
+注意，my app data 不是一个package，它只是 my app的一部分。
+
 src/my/app/BUILD
+
 src/my/app/app.cc
+
 src/my/app/data/input.txt
+
 src/my/app/tests/BUILD
+
 src/my/app/tests/test.cc
 
 == Targets
