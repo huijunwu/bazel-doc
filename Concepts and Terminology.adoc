@@ -15,9 +15,9 @@ This document provides an overview of the source tree layout and the terminology
 ** Workspace （带WORKSPACE的目录）
 ** Packages （带BUILD的目录）
 ** Targets （文件，不论直接指代，还是函数指代）
-** Labels （文件 路径）
-** Lexical Specifications of a Label
-** Rules
+** Labels （路径）
+** Lexical Specifications of a Label （路径词法：target文件和package目录）
+** Rules （规则，文件的函数指代）
 * BUILD Files
 ** The Core Build Language
 ** Declaring Build Rules
@@ -194,32 +194,65 @@ If, by mistake, you refer to testdepot.zip by the wrong label, such as //my/app:
 
 如果你犯错，会得到一个报错。
 
-冒号总是最后一个分隔符，不可能插在//之间。
+冒号总是最后一个BUILD关联的分隔符
 
 == Lexical specification of a label
-路径的语法
+路径的词法
 
 The syntax of labels is intentionally strict, so as to forbid metacharacters that have special meaning to the shell. This helps to avoid inadvertent quoting problems, and makes it easier to construct tools and scripts that manipulate labels, such as the Bazel Query Language. All of the following are forbidden in labels: any sort of white space, braces, brackets, or parentheses; wildcards such as *; shell metacharacters such as >, & and |; etc. This list is not comprehensive; the precise details are below.
 
-Target names, //...:target-name
+路径的词法比较严格。这种严格是为了其他的地方方便。比如这些是不能在路径里面的，空白，括号，星号，shell不能用的符号等。详解如下
 
-target-name is the name of the target within the package. The name of a rule is the value of the name parameter in the rule's declaration in a BUILD file; the name of a file is its pathname relative to the directory containing the BUILD file. Target names must be composed entirely of characters drawn from the set a–z, A–Z, 0–9, and the punctuation symbols _/.+-=,@~. Do not use .. to refer to files in other packages; use //packagename:filename instead. Filenames must be relative pathnames in normal form, which means they must neither start nor end with a slash (e.g. /foo and foo/ are forbidden) nor contain multiple consecutive slashes as path separators (e.g. foo//bar). Similarly, up-level references (..) and current-directory references (./) are forbidden. The sole exception to this rule is that a target name may consist of exactly '.'.
+=== Target names, //...:target-name
+target路径，文件路径
+
+*target-name* is the name of the target within the package. 
+
+上面那个target-name是相对BUILD目录来说的
+
+The name of a rule is the value of the name parameter in the rule's declaration in a BUILD file; the name of a file is its pathname relative to the directory containing the BUILD file. 
+
+rule的名字是BUILD定义rule的时候定义的。file的名字就是file自己的名字
+
+Target names must be composed entirely of characters drawn from the set a–z, A–Z, 0–9, and the punctuation symbols _/.+-=,@~. 
+
+合法的target名字可以包含 bla bla
+
+Do not use .. to refer to files in other packages; use //packagename:filename instead. Filenames must be relative pathnames in normal form, which means they must neither start nor end with a slash (e.g. /foo and foo/ are forbidden) nor contain multiple consecutive slashes as path separators (e.g. foo//bar). Similarly, up-level references (..) and current-directory references (./) are forbidden. The sole exception to this rule is that a target name may consist of exactly '.'.
+
+不要用.. 不要用/开头或者结尾 不要用// 不要用./ 
+
+唯一例外是target名字里面就是有.
 
 While it is common to use / in the name of a file target, we recommend that you avoid the use of / in the names of rules. Especially when the shorthand form of a label is used, it may confuse the reader. The label //foo/bar/wiz is always a shorthand for //foo/bar/wiz:wiz, even if there is no such package foo/bar/wiz; it never refers to //foo:bar/wiz, even if that target exists.
 
+因为直接file的名字里面可能有/，所以建议rule的名字里面不要用/（约定俗成），避免迷惑读者。所以用短格式的label时，就只考虑最后一节的冒号重复，不用考虑带/的冒号重复。
+
 However, there are some situations where use of a slash is convenient, or sometimes even necessary. For example, the name of certain rules must match their principal source file, which may reside in a subdirectory of the package.
 
-Package names, //package-name:...
+但是有些时候rule名字带/也是说得通的，比如这些rule要指代子目录里面的file等。（这文章作者前后打脸）
+
+=== Package names, //package-name:...
+package名字
 
 The name of a package is the name of the directory containing its BUILD file, relative to the top-level directory of the source tree. For example: my/app. Package names must be composed entirely of characters drawn from the set A-Z, a–z, 0–9, '/', '-', '.', and '_', and cannot start with a slash.
 
+pacakge的名字就是目录的名字，相对workspace根。pacakge目录名字必须是 bla bla，不能用/开头。
+
 For a language with a directory structure that is significant to its module system (e.g. Java), it is important to choose directory names that are valid identifiers in the language.
+
+对于比如java这种对目录结构严格要求的，（就是要满足java和bazel同时）
 
 Although Bazel allows a package at the build root (e.g. //:foo), this is not advised and projects should attempt to use more descriptively named packages.
 
+尽管可以在workspace根里带一个BUILD，但是不建议
+
 Package names may not contain the substring //, nor end with a slash.
 
+package名字不能带//，也不能/结尾
+
 == Rules
+规则
 
 A rule specifies the relationship between inputs and outputs, and the steps to build the outputs. Rules can be of one of many different kinds or classes, which produce compiled executables and libraries, test executables and other supported outputs as described in the Build Encyclopedia.
 
