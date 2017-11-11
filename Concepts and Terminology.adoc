@@ -163,7 +163,7 @@ Within a BUILD file, the package-name part of label may be omitted, and optional
 
 在一个BUILD文件内，可以省略package名字，冒号也可以省略。（因为都是同package的target的时候。）下面这些等价：
 
-* //my/app:app  完整路径 = //+<package>+:+<target>
+* //my/app:app  完整路径 = //<package>:<target>
 * //my/app  完整路径，这是同名省略冒号
 * :app  相对路径，这是rule输出file
 * app  相对路径，这是直接file
