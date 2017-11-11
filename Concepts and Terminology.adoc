@@ -136,9 +136,9 @@ package group就是package的集合，目的是为了限制某些rule的访问�
 
 All targets belong to exactly one package. The name of a target is called its label, and a typical label in canonical form looks like this:
 
-target属于一个package。target的名字就是它的label，一个典型的label用canonical的格式就像这样：
+target属于一个package。target的路径就是它的label，一个典型的label用canonical的格式就像这样：
 
-//my/app/main:app_binary
+  //my/app/main:app_binary
 
 Each label has two parts, a package name (my/app/main) and a target name (app_binary). Every label uniquely identifies a target. Labels sometimes appear in other forms; when the colon is omitted, the target name is assumed to be the same as the last component of the package name, so these two labels are equivalent:
 
