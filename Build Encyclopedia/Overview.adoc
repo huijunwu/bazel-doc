@@ -2,6 +2,6 @@
 
 列出了concept terminology
 
-列出了function：load package glob workspace 等
+列出了function：load package glob workspace 等 （rule中的一类）
 
 列出了各种语言的rule：cc的，java的，py的，sh的 等
