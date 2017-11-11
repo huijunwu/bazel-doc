@@ -15,8 +15,8 @@ This document provides an overview of the source tree layout and the terminology
 ** Workspace （带WORKSPACE的目录）
 ** Packages （带BUILD的目录）
 ** Targets （文件，不论直接指代，还是函数指代）
-** Labels （路径）
-** Lexical Specifications of a Label （路径词法：target文件和package目录）
+** Labels （路径，只能指到target，不能指到pacakge。//<pacakge>:<target>）
+** Lexical Specifications of a Label （路径词法：target文件部分和package目录部分）
 ** Rules （规则，文件的函数指代）
 * BUILD Files
 ** The Core Build Language
@@ -142,7 +142,7 @@ target属于一个package。target的路径就是它的label，一个典型的la
 
 Each label has two parts, a package name (my/app/main) and a target name (app_binary). Every label uniquely identifies a target. Labels sometimes appear in other forms; when the colon is omitted, the target name is assumed to be the same as the last component of the package name, so these two labels are equivalent:
 
-每个label有2个部分，package名字和target名字。（注意这里的package名字没有最开头的//）
+每个label有2个部分，package名字和target名字。（注意这里的package名字没有最开头的//。//可以理解成workspace根？）
 
 每个label唯一定位一个target。
 
