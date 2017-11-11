@@ -12,8 +12,8 @@ This document provides an overview of the source tree layout and the terminology
 
 * Introduction
 * Workspace, Packages and Targets
-** Workspace
-** Packages
+** Workspace （带WORKSPACE的目录）
+** Packages （带BUILD的目录）
 ** Targets
 ** Labels
 ** Lexical Specifications of a Label
@@ -43,7 +43,7 @@ workspace里面是按照嵌套的package组织的，每个package其实也是一
 工作区，包，目标
 
 == Workspace
-工作区
+工作区 （带WORKSPACE的目录）
 
 A workspace is a directory on your filesystem that contains the source files for the software you want to build, as well as symbolic links to directories that contain the build outputs. Each workspace directory has a text file named WORKSPACE which may be empty, or may contain references to external dependencies required to build the outputs. See also the Workspace Rules section in the Build Encyclopedia.
 
@@ -54,7 +54,7 @@ A workspace is a directory on your filesystem that contains the source files for
 这个WORKSPACE文件可以是空的，或者写一些外部依赖在里面。（参考Build Encyclopedia章的Workspace Rules节）
 
 == Packages
-包
+包 （带BUILD的目录）
 
 The primary unit of code organization in a workspace is the package. A package is collection of related files and a specification of the dependencies among them.
 
