@@ -235,9 +235,10 @@ The deps(x) operator evaluates to the graph formed by the transitive closure of 
 The resulting graph is ordered according to the dependency relation. See the section on graph order for more details.
 
 The deps operator accepts an optional second argument, which is an integer literal specifying an upper bound on the depth of the search. So deps(foo:*, 1) evaluates to all the direct prerequisites of any target in the foo package, and deps(foo:*, 2) further includes the nodes directly reachable from the nodes in deps(foo:*, 1), and so on. (These numbers correspond to the ranks shown in the minrank output format.) If the depth parameter is omitted, the search is unbounded, i.e. it computes the reflexive transitive closure of prerequsites.
-Transitive closure of reverse dependencies: rdeps
 
-expr ::= rdeps(expr, expr)
+=== Transitive closure of reverse dependencies: rdeps
+
+	expr ::= rdeps(expr, expr)
        | rdeps(expr, expr, depth)
 
 The rdeps(u, x) operator evaluates to the reverse dependencies of the argument set x within the transitive closure of the universe set u.
@@ -245,29 +246,33 @@ The rdeps(u, x) operator evaluates to the reverse dependencies of the argument s
 The resulting graph is ordered according to the dependency relation. See the section on graph order for more details.
 
 The rdeps operator accepts an optional third argument, which is an integer literal specifying an upper bound on the depth of the search. The resulting graph will only include nodes within a distance of the specified depth from any node in the argument set. So rdeps(//foo, //common, 1) evaluates to all nodes in the transitive closure of //foo that directly depend on //common. (These numbers correspond to the ranks shown in the minrank output format.) If the depth parameter is omitted, the search is unbounded.
-Transitive closure of all reverse dependencies: allrdeps
 
-expr ::= allrdeps(expr)
+=== Transitive closure of all reverse dependencies: allrdeps
+
+	expr ::= allrdeps(expr)
        | allrdeps(expr, depth)
 
 Only available with Sky Query
 
 The allrdeps operator behaves just like the rdeps operator, except that the "universe set" is whatever the --universe_scope flag evaluated to, instead of being separately specified. Thus, if --universe_scope=//foo/... was passed, then allrdeps(//bar) is equivalent to rdeps(//bar, //foo/...).
-Dealing with a target's package: siblings
 
-expr ::= siblings(expr)
+=== Dealing with a target's package: siblings
+
+	expr ::= siblings(expr)
 
 The siblings(x) operator evalutes to the full set of targets that are in the same package as a target in the argument set.
-Arbitrary choice: some
 
-expr ::= some(expr)
+=== Arbitrary choice: some
+
+	expr ::= some(expr)
 
 The some(x) operator selects one target arbitrarily from its argument set x, and evaluates to a singleton set containing only that target. For example, the expression some(//foo:main union //bar:baz) evaluates to a set containing either //foo:main or //bar:baz—though which one is not defined.
 
 If the argument is a singleton, then some computes the identity function: some(//foo:main) is equivalent to //foo:main. It is an error if the specified argument set is empty, as in the expression some(//foo:main intersect //bar:baz).
-Path operators: somepath, allpaths
 
-expr ::= somepath(expr, expr)
+=== Path operators: somepath, allpaths
+
+	expr ::= somepath(expr, expr)
        | allpaths(expr, expr)
 
 The somepath(S, E) and allpaths(S, E) operators compute paths between two sets of targets. Both queries accept two arguments, a set S of starting points and a set E of ending points. somepath returns the graph of nodes on some arbitrary path from a target in S to a target in E; allpaths returns the graph of nodes on all paths from any target in S to any target in E.
@@ -283,9 +288,10 @@ another possible result.
 	
 
 allpaths(S1 + S2, E).
-Target kind filtering: kind
 
-expr ::= kind(word, expr) 
+=== Target kind filtering: kind
+
+	expr ::= kind(word, expr) 
 
 The kind(pattern, input) operator applies a filter to a set of targets, and discards those targets that are not of the expected kind. The pattern parameter specifies what kind of target to match.
 
@@ -320,9 +326,10 @@ Thus, kind("cc_.* rule", foo/...) evaluates to the set of all cc_library, cc_bin
 Quotation of the pattern argument is often required because without it, many regular expressions, such as source file and .*_test, are not considered words by the parser.
 
 When matching for package group, targets ending in :all may not yield any results. Use :all-targets instead.
-Target name filtering: filter
 
-expr ::= filter(word, expr) 
+=== Target name filtering: filter
+
+	expr ::= filter(word, expr) 
 
 The filter(pattern, input) operator applies a filter to a set of targets, and discards targets whose labels (in absolute form) do not match the pattern; it evaluates to a subset of its input.
 
@@ -343,9 +350,10 @@ Another common use of the filter(pattern, expr) operator is to filter specific f
 filter("\.cc$", deps(//foo))
 
 will provide a list of all .cc files used to build //foo.
-Rule attribute filtering: attr
 
-expr ::= attr(word, word, expr) 
+=== Rule attribute filtering: attr
+
+	expr ::= attr(word, word, expr) 
 
 The attr(name, pattern, input) operator applies a filter to a set of targets, and discards targets that are not rules, rule targets that do not have attribute name defined or rule targets where the attribute value does not match the provided regular expression pattern; it evaluates to a subset of its input.
 
@@ -364,9 +372,10 @@ will select all rules among //foo dependencies that have an empty srcs attribute
 attr("data", ".{3,}", deps(//foo))
 
 will select all rules among //foo dependencies that specify at least one value in the data attribute (every label is at least 3 characters long due to the // and :).
-Rule visibility filtering: visible
 
-expr ::= visible(expr, expr) 
+=== Rule visibility filtering: visible
+
+	expr ::= visible(expr, expr) 
 
 The visible(predicate, input) operator applies a filter to a set of targets, and discards targets without the required visibility.
 
@@ -375,23 +384,26 @@ The first argument, predicate, is a set of targets that all targets in the outpu
 visible(//foo, //bar:*)
 
 will select all targets in the package //bar that //foo can depend on without violating visibility restrictions.
-Evaluation of rule attributes of type label: labels
 
-expr ::= labels(word, expr) 
+=== Evaluation of rule attributes of type label: labels
+
+	expr ::= labels(word, expr) 
 
 The labels(attr_name, inputs) operator returns the set of targets specified in the attribute attr_name of type "label" or "list of label" in some rule in set inputs.
 
 For example, labels(srcs, //foo) returns the set of targets appearing in the srcs attribute of the //foo rule. If there are multiple rules with srcs attributes in the inputs set, the union of their srcs is returned.
-Expand and filter test_suites: tests
 
-expr ::= tests(expr)
+=== Expand and filter test_suites: tests
+
+	expr ::= tests(expr)
 
 The tests(x) operator returns the set of all test rules in set x, expanding any test_suite rules into the set of individual tests that they refer to, and applying filtering by tag and size. By default, query evaluation ignores any non-test targets in all test_suite rules. This can be changed to errors with the --strict_test_suite option.
 
 For example, the query kind(test, foo:*) lists all the *_test and test_suite rules in the foo package. All the results are (by definition) members of the foo package. In contrast, the query tests(foo:*) will return all of the individual tests that would be executed by bazel test foo:*: this may include tests belonging to other packages, that are referenced directly or indirectly via test_suite rules.
-Package definition files: buildfiles
 
-expr ::= buildfiles(expr)
+=== Package definition files: buildfiles
+
+	expr ::= buildfiles(expr)
 
 The buildfiles(x) operator returns the set of files that define the packages of each target in set x; in other words, for each package, its BUILD file, plus any files it references via load. Note that this also returns the BUILD files of the packages containing these loaded files.
 
@@ -402,9 +414,10 @@ bazel query 'buildfiles(deps(//foo))' --output package
 returns the set of all packages on which //foo transitively depends.
 
 (Note: a naive attempt at the above query would omit the buildfiles operator and use only deps, but this yields an incorrect result: while the result contains the majority of needed packages, those packages that contain only files that are load()'ed will be missing.
-Package definition files: rbuildfiles
 
-expr ::= rbuildfiles(expr)
+=== Package definition files: rbuildfiles
+
+	expr ::= rbuildfiles(expr)
 
 Only available with Sky Query
 
@@ -413,9 +426,10 @@ The rbuildfiles(x) operator returns the set of "buildfiles" (BUILD and .bzl file
 The scope of the rbuildfiles operator is the universe specified by the --universe_scope flag. Files that do not correspond directly to BUILD files and .bzl files do not affect the results. For instance, source files (like foo.cc) are ignored, even if they are explicitly mentioned in the BUILD file. Symlinks, however, are respected, so that if foo/BUILD is a symlink to bar/BUILD, then rbuildfiles(bar/BUILD) will include //foo:BUILD in its results.
 
 The rbuildfiles operator is morally the inverse of the buildfiles operator. However, this moral inversion holds more strongly in one direction: the outputs of rbuildfiles are just like the inputs of buildfiles, since both are targets corresponding to packages and .bzl files. In the other direction, the correspondence is weaker. The outputs of the buildfiles operator are targets corresponding to all packages and .bzl files needed by a given input. However, the inputs of the rbuildfiles operator are not those targets, but rather the path fragments that correspond to those targets.
-Package definition files: loadfiles
 
-expr ::= loadfiles(expr)
+=== Package definition files: loadfiles
+
+	expr ::= loadfiles(expr)
 
 The loadfiles(x) operator returns the set of Skylark files that are needed to load the packages of each target in set x. In other words, for each package, it returns the .bzl files that are referenced from its BUILD files.
 
