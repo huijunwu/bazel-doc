@@ -106,26 +106,34 @@ expr ::= word
        | word '(' int | word | expr ... ')'
 
 We will examine each of the productions of this grammar in order.
-Target patterns
 
-expr ::= word
+=== Target patterns
+
+	expr ::= word
 
 Syntactically, a target pattern is just a word. It is interpreted as an (unordered) set of targets. The simplest target pattern is a label, which identifies a single target (file or rule). For example, the target pattern //foo:bar evaluates to a set containing one element, the target, the bar rule.
 
+句法上，一个target pattern就是一个word。这个word变成一个target的集合set。最简单的target pattern就是一个label，这个label标记一个单一target。比如，//foo:bar是一个集合，里面只有一个target，就是bar这个rule。
+
 Target patterns generalize labels to include wildcards over packages and targets. For example, foo/...:all (or just foo/...) is a target pattern that evaluates to a set containing all rules in every package recursively beneath the foo directory; bar/baz:all is a target pattern that evaluates to a set containing all the rules in the bar/baz package, but not its subpackages.
+
+target pattern接受通配符wildcards在package和target上。比如...，all
 
 Similarly, foo/...:* is a target pattern that evaluates to a set containing all targets (rules and files) in every package recursively beneath the foo directory; bar/baz:* evaluates to a set containing all the targets in the bar/baz package, but not its subpackages.
 
 Because the :* wildcard matches files as well as rules, it is often more useful than :all for queries. Conversely, the :all wildcard (implicit in target patterns like foo/...) is typically more useful for builds.
+
+因为:*通配符匹配file和rule，*比all在查询中更有用。
 
 bazel query target patterns work the same as bazel build build targets do; refer to Target Patterns in the Bazel User Manual for further details, or type bazel help target-syntax.
 
 Target patterns may evaluate to a singleton set (in the case of a label), to a set containing many elements (as in the case of foo/..., which has thousands of elements) or to the empty set, if the target pattern matches no targets.
 
 All nodes in the result of a target pattern expression are correctly ordered relative to each other according to the dependency relation. So, the result of foo:* is not just the set of targets in package foo, it is also the graph over those targets. (No guarantees are made about the relative ordering of the result nodes against other nodes.) See the section on graph order for more details.
-Variables
 
-expr ::= let name = expr1 in expr2
+=== Variables
+
+	expr ::= let name = expr1 in expr2
        | $name
 
 The Bazel query language allows definitions of and references to variables. The result of evaluation of a let expression is the same as that of expr2, with all free occurrences of variable name replaced by the value of expr1.
@@ -141,14 +149,16 @@ Each let expression defines only a single variable, but you can nest them.
 (Both target patterns and variable references consist of just a single token, a word, creating a syntactic ambiguity. However, there is no semantic ambiguity, because the subset of words that are legal variable names is disjoint from the subset of words that are legal target patterns.)
 
 (Technically speaking, let expressions do not increase the expressiveness of the query language: any query expressible in the language can also be expressed without them. However, they improve the conciseness of many queries, and may also lead to more efficient query evaluation.)
-Parenthesized expressions
 
-expr ::= (expr)
+=== Parenthesized expressions
+
+	expr ::= (expr)
 
 Parentheses associate subexpressions to force an order of evaluation. A parenthesized expression evaluates to the value of its argument.
-Algebraic set operations: intersection, union, set difference
 
-expr ::= expr intersect expr
+=== Algebraic set operations: intersection, union, set difference
+
+	expr ::= expr intersect expr
        | expr ^ expr
        | expr union expr
        | expr + expr
@@ -157,22 +167,23 @@ expr ::= expr intersect expr
 
 These three operators compute the usual set operations over their arguments. Each operator has two forms, a nominal form such as intersect and a symbolic form such as ^. Both forms are equivalent; the symbolic forms are quicker to type. (For clarity, the rest of this manual uses the nominal forms.) For example,
 
-foo/... except foo/bar/...
+	foo/... except foo/bar/...
 
 evaluates to the set of targets that match foo/... but not foo/bar/... . Equivalently:
 
-foo/... - foo/bar/...
+	foo/... - foo/bar/...
 
 The intersect (^) and union (+) operations are commutative (symmetric); except (-) is asymmetric. The parser treats all three operators as left-associative and of equal precedence, so you might want parentheses. For example, the first two of these expressions are equivalent, but the third is not:
 
-x intersect y union z
-(x intersect y) union z
-x intersect (y union z)
+	x intersect y union z
+	(x intersect y) union z
+	x intersect (y union z)
 
 (We strongly recommend that you use parentheses where there is any danger of ambiguity in reading a query expression.)
-Read targets from an external source: set
 
-expr ::= set(word *) 
+=== Read targets from an external source: set
+
+	expr ::= set(word *) 
 
 The set(a b c ...) operator computes the union of a set of zero or more target patterns, separated by whitespace (no commas).
 
