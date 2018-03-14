@@ -15,42 +15,41 @@ How do people use bazel query? Here are typical examples:
 
 Why does the //foo tree depend on //bar/baz? Show a path:
 
-somepath(foo/..., //bar/baz:all)
+	somepath(foo/..., //bar/baz:all)
 
 What C++ libraries do all the foo tests depend on that the foo_bin target does not?
 
-kind("cc_library", deps(kind(".*test rule", foo/...)) except deps(//foo:foo_bin))
+	kind("cc_library", deps(kind(".*test rule", foo/...)) except deps(//foo:foo_bin))
 
 == Tokens: The Lexical Syntax
 
 Expressions in the query language are composed of the following tokens:
 
-    Keywords, such as let. Keywords are the reserved words of the language, and each of them is described below. The complete set of keywords is:
-    except
-    in
-    intersect
-    let
-    set
-    union
+  *  Keywords, such as let. Keywords are the reserved words of the language, and each of them is described below. The complete set of keywords is:
+   ** except
+   ** in
+   ** intersect
+   ** let
+   ** set
+   ** union
 
-    Words, such as foo/... or ".*test rule" or //bar/baz:all. If a character sequence is "quoted" (begins and ends with a single-quote ', or begins and ends with a double-quote "), it is a word. If a character sequence is not quoted, it may still be parsed as a word. Unquoted words are sequences of characters drawn from the set of alphabet characters, numerals, slash /, hyphen -, underscore _, star *, and period .. Unquoted words may not start with a hyphen or period.
-
+  *  Words, such as foo/... or ".*test rule" or //bar/baz:all. If a character sequence is "quoted" (begins and ends with a single-quote ', or begins and ends with a double-quote "), it is a word. If a character sequence is not quoted, it may still be parsed as a word. Unquoted words are sequences of characters drawn from the set of alphabet characters, numerals, slash /, hyphen -, underscore _, star *, and period .. Unquoted words may not start with a hyphen or period.
++
     We chose this syntax so that quote marks aren't needed in most cases. The (unusual) ".*test rule" example needs quotes: it starts with a period and contains a space. Quoting "cc_library" is unnecessary but harmless.
-
++
     Quoting is necessary when writing scripts that construct Bazel query expressions from user-supplied values.
-
++
           //foo:bar+wiz    # WRONG: scanned as //foo:bar + wiz.
           //foo:bar=wiz    # WRONG: scanned as //foo:bar = wiz.
           "//foo:bar+wiz"  # ok.
           "//foo:bar=wiz"  # ok.
-        
-
++
     Note that this quoting is in addition to any quoting that may be required by your shell. e.g.
-
++
     bazel query ' "//foo:bar=wiz" '     # single-quotes for shell, double-quotes for Bazel.
-
++
     Keywords, when quoted, are treated as ordinary words, thus some is a keyword but "some" is a word. Both foo and "foo" are words.
-    Punctuation, such as parens (), period . and comma ,, etc. Words containing punctuation (other than the exceptions listed above) must be quoted. 
+  *  Punctuation, such as parens (), period . and comma ,, etc. Words containing punctuation (other than the exceptions listed above) must be quoted. 
 
 Whitespace characters outside of a quoted word are ignored.
 == Bazel Query Language Concepts
