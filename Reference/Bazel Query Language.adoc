@@ -88,6 +88,7 @@ Sky Query
 Query has two different implementations, with slightly different features. The alternative one is called "Sky Query", and is activated by passing the following two flags: --universe_scope and --order_output=no. --universe_scope=<target_pattern1>,...,<target_patternN> tells query to preload the transitive closure of the target pattern specified by the target patterns, which can be both additive and subtractive. All queries are then evaluated in this "scope". In particular, the allrdeps and rbuildfiles operators only return results from this scope.
 
 Sky Query has some advantages and disadvantages compared to the default query. The main disadvantage is that it cannot order its output according to graph order, and thus certain output formats are forbidden. Its advantages are that it provides two operators (allrdeps and rbuildfiles) that are not available in the default query. As well, Sky Query does its work by introspecting the Skyframe graph, rather than creating a new graph, which is what the default implementation does. Thus, there are some circumstances in which it is faster and uses less memory.
+
 == Expressions: Syntax and Semantics of the Grammar
 
 This is the grammar of the Bazel query language, expressed in EBNF notation:
