@@ -49,9 +49,11 @@ Expressions in the query language are composed of the following tokens:
     bazel query ' "//foo:bar=wiz" '     # single-quotes for shell, double-quotes for Bazel.
 +
     Keywords, when quoted, are treated as ordinary words, thus some is a keyword but "some" is a word. Both foo and "foo" are words.
-  *  Punctuation, such as parens (), period . and comma ,, etc. Words containing punctuation (other than the exceptions listed above) must be quoted. 
+
+*  Punctuation, such as parens (), period . and comma ,, etc. Words containing punctuation (other than the exceptions listed above) must be quoted. 
 
 Whitespace characters outside of a quoted word are ignored.
+
 == Bazel Query Language Concepts
 
 The Bazel query language is a language of expressions. Every expression evaluates to a partially-ordered set of targets, or equivalently, a graph (DAG) of targets. This is the only datatype.
