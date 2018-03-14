@@ -207,22 +207,22 @@ Note, set() introduces no graph ordering constraints, so path information may be
 	expr ::= word '(' int | word | expr ... ')'
 
 The query language defines several functions. The name of the function determines the number and type of arguments it requires. The following functions are available:
-*allpaths
-*attr
-*buildfiles
-*rbuildfiles
-*deps
-*filter
-*kind
-*labels
-*loadfiles
-*rdeps
-*allrdeps
-*siblings
-*some
-*somepath
-*tests
-*visible
+* allpaths
+* attr
+* buildfiles
+* rbuildfiles
+* deps
+* filter
+* kind
+* labels
+* loadfiles
+* rdeps
+* allrdeps
+* siblings
+* some
+* somepath
+* tests
+* visible
 
 === Transitive closure of dependencies: deps
 
