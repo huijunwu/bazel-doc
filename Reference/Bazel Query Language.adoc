@@ -8,6 +8,7 @@
    * Output Formats
 
 When you use bazel query to analyze build dependencies, you use a little language, the Bazel Query Language. This document is the reference manual for that language. This document also describes the output formats bazel query supports.
+
 == Examples
 
 How do people use bazel query? Here are typical examples:
@@ -187,6 +188,7 @@ In the next example, kind(cc_library, deps(//some_dir/foo:main, 5)) is effective
 In these examples, $(<foo) is a shorthand for $(cat foo), but shell commands other than cat may be used too—such as the previous awk command.
 
 Note, set() introduces no graph ordering constraints, so path information may be lost when saving and reloading sets of nodes using it. See the graph order section below for more detail.
+
 == Functions
 
 expr ::= word '(' int | word | expr ... ')'
@@ -401,6 +403,7 @@ Package definition files: loadfiles
 expr ::= loadfiles(expr)
 
 The loadfiles(x) operator returns the set of Skylark files that are needed to load the packages of each target in set x. In other words, for each package, it returns the .bzl files that are referenced from its BUILD files.
+
 == Output Formats
 
 bazel query generates a graph. You specify the content, format, and ordering by which bazel query presents this graph by means of the --output command-line option.
