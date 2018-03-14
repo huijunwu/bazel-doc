@@ -93,7 +93,7 @@ Sky Query has some advantages and disadvantages compared to the default query. T
 
 This is the grammar of the Bazel query language, expressed in EBNF notation:
 
-expr ::= word
+	expr ::= word
        | let name = expr in expr
        | (expr)
        | expr intersect expr
