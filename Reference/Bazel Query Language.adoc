@@ -204,28 +204,29 @@ Note, set() introduces no graph ordering constraints, so path information may be
 
 == Functions
 
-expr ::= word '(' int | word | expr ... ')'
+	expr ::= word '(' int | word | expr ... ')'
 
 The query language defines several functions. The name of the function determines the number and type of arguments it requires. The following functions are available:
-allpaths
-attr
-buildfiles
-rbuildfiles
-deps
-filter
-kind
-labels
-loadfiles
-rdeps
-allrdeps
-siblings
-some
-somepath
-tests
-visible
-Transitive closure of dependencies: deps
+*allpaths
+*attr
+*buildfiles
+*rbuildfiles
+*deps
+*filter
+*kind
+*labels
+*loadfiles
+*rdeps
+*allrdeps
+*siblings
+*some
+*somepath
+*tests
+*visible
 
-expr ::= deps(expr)
+=== Transitive closure of dependencies: deps
+
+	expr ::= deps(expr)
        | deps(expr, depth)
 
 The deps(x) operator evaluates to the graph formed by the transitive closure of dependencies of its argument set x. For example, the value of deps(//foo) is the dependency graph rooted at the single node foo, including all its dependencies. The value of deps(foo/...) is the dependency graphs whose roots are all rules in every package beneath the foo directory. Please note that 'dependencies' means only rule and file targets in this context, therefore the BUILD, and Skylark files needed to create these targets are not included here. For that you should use the buildfiles operator.
