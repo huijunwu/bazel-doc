@@ -54,6 +54,7 @@ To build or test a project with Bazel, you typically do the following:
     Run Bazel from the command line. Bazel places your outputs within the workspace.
 
 In addition to building, you can also use Bazel to run tests and query the build to trace dependencies in your code.
+
 = How does Bazel work?
 
 When running a build or a test, Bazel does the following:
@@ -68,6 +69,7 @@ Since all previous build work is cached, Bazel can identify and reuse cached art
 What is the action graph?
 
 The action graph represents the build artifacts, the relationships between them, and the build actions that Bazel will perform. Thanks to this graph, Bazel can track changes to file content as well as changes to actions, such as build or test commands, and know what build work has previously been done. The graph also enables you to easily trace dependencies in your code.
+
 = How do I get started?
 
 To get started with Bazel, see Getting Started or jump directly to the Bazel tutorials:
