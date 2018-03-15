@@ -2,9 +2,37 @@
 
    * Examples
    * Tokens: The Lexical Syntax
+   	** Keywords
+	** Words
+	** Punctuation
    * Bazel Query Language Concepts
+   	** Cycles in the dependency graph
+	** Implicit dependencies
+	** Soundness
+	** On the preservation of graph order
+	** Sky Query
    * Expressions: Syntax and Semantics of the Grammar
+   	** Target patterns
+	** Variables
+	** Parenthesized expressions
+	** Algebraic set operations: intersection, union, set difference
+	** Read targets from an external source: set
    * Functions
+   	** Transitive closure of dependencies: deps
+	** Transitive closure of reverse dependencies: rdeps
+	** Transitive closure of all reverse dependencies: allrdeps
+	** Dealing with a target's package: siblings
+	** Arbitrary choice: some
+	** Path operators: somepath, allpaths
+	** Target kind filtering: kind
+	** Target name filtering: filter
+	** Rule attribute filtering: attr
+	** Rule visibility filtering: visible
+	** Evaluation of rule attributes of type label: labels
+	** Expand and filter test_suites: tests
+	** Package definition files: buildfiles
+	** Package definition files: rbuildfiles
+	** Package definition files: loadfiles
    * Output Formats
 
 When you use bazel query to analyze build dependencies, you use a little language, the Bazel Query Language. This document is the reference manual for that language. This document also describes the output formats bazel query supports.
